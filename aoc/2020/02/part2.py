@@ -17,8 +17,8 @@ class OriginalPasswordPolicy(PasswordPolicy):
     character: str
 
     def match(self, password: str):
-        occurances = password.count(self.character)
-        return occurances >= self.min_count and occurances <= self.max_count
+        occurrences = password.count(self.character)
+        return occurrences >= self.min_count and occurrences <= self.max_count
 
 
 @dataclass
