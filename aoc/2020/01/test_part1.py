@@ -2,6 +2,7 @@ import pytest
 
 from part1 import find_sum_pair, fix_expense_report
 
+
 @pytest.mark.parametrize(
     ("numbers", "target", "expected"),
     [
@@ -14,6 +15,7 @@ from part1 import find_sum_pair, fix_expense_report
 )
 def test_find_sum_pair(numbers, target, expected):
     assert set(find_sum_pair(numbers, target)) == set(expected)
+
 
 @pytest.mark.parametrize(
     ("numbers", "target", "expected"),
@@ -28,4 +30,3 @@ def test_find_sum_pair(numbers, target, expected):
 def test_fix_expense_report(numbers, target, expected):
     result = fix_expense_report(numbers, target)
     assert result == expected
-    

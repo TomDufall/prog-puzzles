@@ -3,8 +3,10 @@ from pathlib import Path
 import pytest
 import pytest_mock
 
-from part2 import OriginalPasswordPolicy, Password, UpdatedPasswordPolicy
-from part2 import count_valid_passwords, load_input_old_format, load_input_new_format
+from part2 import Password, OriginalPasswordPolicy, UpdatedPasswordPolicy
+from part2 import (
+    count_valid_passwords, load_input_old_format, load_input_new_format
+)
 
 
 class TestOriginalPasswordPolicy:
@@ -16,7 +18,7 @@ class TestOriginalPasswordPolicy:
         [
             (1, 1, "a", "edam", True),
             (1, 1, "a", "dog", False),
-            (1, 3, "a", "armarda", True),
+            (1, 3, "a", "armada", True),
             (1, 3, "a", "adam", True),
             (1, 1, "n", "banana", False),
         ]
@@ -35,7 +37,7 @@ class TestUpdatedPasswordPolicy:
         [
             (1, 3, "a", "edam", True),
             (1, 3, "a", "dog", False),
-            (1, 4, "a", "armarda", False),
+            (1, 4, "a", "armada", False),
             (1, 3, "b", "adam", False),
         ]
     )
@@ -60,7 +62,7 @@ def test_count_valid_passwords():
 
 
 def test_load_input_old_format():
-    filepath = Path('sample_input.txt')
+    filepath = Path(__file__).parent / "sample_input.txt"
     expected = [
         Password(
             OriginalPasswordPolicy(1, 3, "a"),
@@ -83,7 +85,7 @@ def test_load_input_old_format():
 
 
 def test_load_input_new_format():
-    filepath = Path('sample_input.txt')
+    filepath = Path(__file__).parent / "sample_input.txt"
     expected = [
         Password(
             UpdatedPasswordPolicy(1, 3, "a"),

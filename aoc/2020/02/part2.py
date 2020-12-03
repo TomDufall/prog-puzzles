@@ -6,7 +6,7 @@ from typing import List
 
 
 class PasswordPolicy(ABC):
-    def match(self, password: str):
+    def match(self, password: str) -> bool:
         return NotImplemented
 
 
@@ -16,9 +16,16 @@ class OriginalPasswordPolicy(PasswordPolicy):
     max_count: int
     character: str
 
-    def match(self, password: str):
-        occurrences = password.count(self.character)
-        return occurrences >= self.min_count and occurrences <= self.max_count
+    def match(self, password: str) -> bool:
+        """
+        Check if the given password matches the policy.
+        A password matches if it contains between self.min_count and
+        self.match_count (inclusive) occurrences of self.character.
+        :param password: Password to test
+        :return: Whether or not the password is valid
+        """
+        count = password.count(self.character)
+        return self.min_count <= count <= self.max_count
 
 
 @dataclass
@@ -28,7 +35,14 @@ class UpdatedPasswordPolicy(PasswordPolicy):
     index_2: int
     character: str
 
-    def match(self, password: str):
+    def match(self, password: str) -> bool:
+        """
+        Check if the given password matches the policy.
+        A password matches if exactly one of characters at self.index_1 and
+        self.index_2 of the password (1-indexed) match self.character.
+        :param password:
+        :return: Whether or not the password is valid
+        """
         match_1 = password[self.index_1 - 1] == self.character
         match_2 = password[self.index_2 - 1] == self.character
         return xor(match_1, match_2)
@@ -36,20 +50,42 @@ class UpdatedPasswordPolicy(PasswordPolicy):
 
 @dataclass
 class Password:
+    """
+    Password stores a password and its validation policy.
+    It can be used to check the validity of the password.
+    """
     policy: PasswordPolicy
     password: str
 
-    def validate(self):
+    def validate(self) -> bool:
+        """
+        Check if the password complies with the password policy.
+        :return: Whether or not the password is valid
+        """
         return self.policy.match(self.password)
 
 
 def count_valid_passwords(passwords: List[Password]) -> int:
-    is_valid = lambda password: password.validate()
-    valid_passwords = list(filter(is_valid, passwords))
+    """
+    For a list of passwords, count the number which meet their password policy.
+    :param passwords:
+    :return: Count of valid passwords
+    """
+    valid_passwords = list(filter(
+        lambda password: password.validate(),
+        passwords
+    ))
     return len(valid_passwords)
 
 
 def load_input_old_format(filepath: Path) -> List[Password]:
+    def load_input(filepath: Path) -> List[Password]:
+        """
+        Load a filepath to a list of passwords including original-format
+        password policies.
+        :param filepath: File location
+        :return: List of passwords
+        """
     passwords: List[Password] = []
     for line in filepath.read_text().splitlines():
         policy_str, password = line.split(": ")
@@ -61,6 +97,13 @@ def load_input_old_format(filepath: Path) -> List[Password]:
 
 
 def load_input_new_format(filepath: Path) -> List[Password]:
+    def load_input(filepath: Path) -> List[Password]:
+        """
+        Load a filepath to a list of passwords including updated-format
+        password policies.
+        :param filepath: File location
+        :return: List of passwords
+        """
     passwords: List[Password] = []
     for line in filepath.read_text().splitlines():
         policy_str, password = line.split(": ")

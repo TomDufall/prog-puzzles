@@ -2,6 +2,7 @@ import pytest
 
 from part2 import find_sum_group, fix_expense_report
 
+
 @pytest.mark.parametrize(
     ("numbers", "target", "group_size", "expected"),
     [
@@ -22,6 +23,7 @@ from part2 import find_sum_group, fix_expense_report
 def test_find_sum_pair(numbers, target, group_size, expected):
     result = find_sum_group(numbers, target, group_size)
     assert sorted(result) == sorted(expected)
+
 
 @pytest.mark.parametrize(
     ("numbers", "target", "group_size", "expected"),

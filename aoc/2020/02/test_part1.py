@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 import pytest_mock
 
-from part1 import PasswordPolicy, Password
+from part1 import Password, PasswordPolicy
 from part1 import count_valid_passwords, load_input
 
 
@@ -16,7 +16,7 @@ class TestPasswordPolicy:
         [
             (1, 1, "a", "edam", True),
             (1, 1, "a", "dog", False),
-            (1, 3, "a", "armarda", True),
+            (1, 3, "a", "armada", True),
             (1, 3, "a", "adam", True),
             (1, 1, "n", "banana", False),
         ]
@@ -46,7 +46,7 @@ def test_count_valid_passwords(mocker):
 
 
 def test_load_input():
-    filepath = Path('sample_input.txt')
+    filepath = Path(__file__).parent / "sample_input.txt"
     expected = [
         Password(
             PasswordPolicy(1, 3, "a"),
