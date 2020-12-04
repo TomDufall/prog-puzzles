@@ -39,7 +39,5 @@ def fix_expense_report(
 
 if __name__ == "__main__":
     input_file = Path(__file__).parent / "input.txt"
-    numbers = [
-        float(line.strip()) for line in input_file.read_text().splitlines()
-    ]
+    numbers = list(map(float, input_file.read_text().splitlines()))
     print(fix_expense_report(numbers, 2020, 3))
