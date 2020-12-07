@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 import re
-from typing import Dict, List
+from typing import Dict, Set
 
 # Type alias to make type hints more obvious
 BagType = str
@@ -16,14 +16,14 @@ class BagNetwork:
     Also contains a reverse link of what bags each bag can be held in.
     """
     must_contain: Dict[BagType, Dict[BagType, int]] = field(default_factory=dict)
-    contained_by: Dict[BagType, BagType] = field(default_factory=dict)
+    contained_by: Dict[BagType, Set(BagType)] = field(default_factory=dict)
 
     @staticmethod
     def from_file(filepath: Path) -> BagNetwork:
         bag_network = BagNetwork()
         req_list = filepath.read_text().splitlines()
         for req in req_list:
-            # format = <outer>s contain {quantity <inner> bag(s)}.
+            # format = <outer> bags contain {quantity <inner> bag(s)}.
             outer, inners_str = req.split(" bags contain ")
             if inners_str == "no other bags.":
                 bag_network.add(outer, None, 0)
@@ -41,7 +41,8 @@ class BagNetwork:
         """
         if self.must_contain.get(outer) is None:
             self.must_contain[outer] = {}
-        self.must_contain[outer][inner] = quantity
+        if inner:
+            self.must_contain[outer][inner] = quantity
         if self.contained_by.get(inner) is None:
             self.contained_by[inner] = set()
         self.contained_by[inner].add(outer)
@@ -60,7 +61,6 @@ class BagNetwork:
         can_contain = self.contained_by.get(inner, set()).copy()
         to_check = self.contained_by.get(inner, set()).copy()
         checked = {inner}
-        # print(len(can_contain), can_contain)
         while to_check:
             item = to_check.pop()
             if item in checked:
@@ -69,8 +69,6 @@ class BagNetwork:
                 can_contain.update(self.contained_by.get(item, set()))
                 to_check.update(self.contained_by.get(item, set()))
                 checked.add(item)
-        #     print(len(can_contain), can_contain)
-        # print(len(can_contain), can_contain)
         return len(can_contain)
 
     def must_contain_count_all(self, inner: BagType) -> int:
@@ -92,8 +90,6 @@ class BagNetwork:
 
 
 if __name__ == "__main__":
-#    filepath = Path(__file__).parent / "sample_input.txt"
     filepath = Path(__file__).parent / "input.txt"
     network = BagNetwork.from_file(filepath)
-#    print(network.contained_by)
     print(network.must_contain_count_all("shiny gold"))
