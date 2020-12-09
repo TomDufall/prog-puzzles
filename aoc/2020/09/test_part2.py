@@ -1,5 +1,4 @@
 from pathlib import Path
-import pytest
 
 from part2 import find_sum_stream
 

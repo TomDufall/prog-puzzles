@@ -1,12 +1,11 @@
 from collections import deque
-from itertools import combinations
 from pathlib import Path
-from typing import Iterable, Iterator
+from typing import Iterator, Optional as Opt
 
 from part1 import find_error
 
 
-def find_sum_stream(datastream: Iterator[int], target: int) -> int:
+def find_sum_stream(datastream: Iterator[int], target: int) -> Opt[int]:
     """
     Find a contiguous group of values in the datastream (min 2) that sum to
     the target value.

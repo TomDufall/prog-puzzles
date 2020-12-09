@@ -4,6 +4,7 @@ import pytest
 
 from part1 import different_sum_pair_exists, find_error
 
+
 @pytest.mark.parametrize(
     ("nums", "target", "expected"),
     [
