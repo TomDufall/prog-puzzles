@@ -4,18 +4,15 @@ from typing import Iterator, List, Tuple
 
 
 def resolve_address(addr: int, mask: str) -> Iterator[int]:
-    addr_bin = bin(addr).split("b", 1)[1]
+    addr_bin = bin(addr)[2:].zfill(36)
     # Apply 1 mask
-    if len(addr_bin) < len(mask):
-        extras = len(mask) - len(addr_bin)
-        addr_bin = "0" * extras + addr_bin
-        masked_addr_parts = []
-        for i in range(len(mask)):
-            mask_op = mask[i]
-            if mask_op == "0":
-                masked_addr_parts.append(addr_bin[i])
-            else:
-                masked_addr_parts.append(mask_op)
+    masked_addr_parts = []
+    for i in range(len(mask)):
+        mask_op = mask[i]
+        if mask_op == "0":
+            masked_addr_parts.append(addr_bin[i])
+        else:
+            masked_addr_parts.append(mask_op)
     masked_addr = "".join(masked_addr_parts)
     # Expand possibilities for Xs - 0 or 1
     bit_values = product({0, 1}, repeat=mask.count("X"))
