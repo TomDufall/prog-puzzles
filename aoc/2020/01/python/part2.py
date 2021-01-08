@@ -7,7 +7,7 @@ from typing import List, Optional, Tuple
 
 def find_sum_group(
     numbers: List[float], target: float, group_size: int
-) -> Optional[Tuple[float]]:
+) -> Optional[Tuple[float, ...]]:
     """
     Find a group of numbers in the input list that sum to the target value.
     :param numbers: List of numbers to find a group in

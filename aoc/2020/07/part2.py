@@ -16,7 +16,7 @@ class BagNetwork:
     Also contains a reverse link of what bags each bag can be held in.
     """
     must_contain: Dict[BagType, Dict[BagType, int]] = field(default_factory=dict)
-    contained_by: Dict[BagType, Set(BagType)] = field(default_factory=dict)
+    contained_by: Dict[BagType, Set[BagType]] = field(default_factory=dict)
 
     @staticmethod
     def from_file(filepath: Path) -> BagNetwork:
@@ -86,7 +86,7 @@ class BagNetwork:
                 if bag is not None:
                     to_add.append((bag, outer_quantity * inner_quantity))
             count += outer_quantity
-        return count -1 # don't counter bag itself
+        return count - 1  # don't counter bag itself
 
 
 if __name__ == "__main__":

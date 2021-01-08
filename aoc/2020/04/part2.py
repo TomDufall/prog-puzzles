@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 import re
+from typing import List
 
 
 SHORT_TO_LONG = {
@@ -15,11 +16,12 @@ SHORT_TO_LONG = {
     "pid": "passport_id",
     "cid": "country_id",
 }
-LONG_TO_SHORT = {val: key for key,val in SHORT_TO_LONG.items()}
+LONG_TO_SHORT = {val: key for key, val in SHORT_TO_LONG.items()}
 
 HAIR_REGEX = "#[0-9a-f]{6}"
 VALID_EYE_COLOURS = ("amb", "blu", "brn", "gry", "grn", "hzl", "oth")
 PASSPORT_ID_REGEX = r"\d{9}"
+
 
 @dataclass
 class Passport:
@@ -63,6 +65,7 @@ class Passport:
             raise ValueError("Passport ID invalid")
         return True
 
+
 @dataclass
 class NorthPoleId(Passport):
     country_id: str = "NorthPole"
@@ -70,15 +73,15 @@ class NorthPoleId(Passport):
 
 @dataclass
 class PassportList:
-    passports: Passport
+    passports: List[Passport]
 
     @staticmethod
     def from_batch(filepath: Path) -> PassportList:
         entries = filepath.read_text().split("\n\n")
         passports = []
-        field_pattern = r"[\S^:]+:[\S^:]+" # key:value
+        field_pattern = r"[\S^:]+:[\S^:]+"  # key:value
         for entry in entries:
-            field_strings = re.findall(field_pattern,entry)
+            field_strings = re.findall(field_pattern, entry)
             fields = {
                 SHORT_TO_LONG[key]: value
                 for key, value
@@ -91,20 +94,15 @@ class PassportList:
                     # I'm sure they won't mind, I am fixing their system, after all
                     try:
                         passports.append(NorthPoleId(**fields))
-                    except:
-                        pass
-            except ValueError as e:
+                    except ValueError:
+                        continue
+            except ValueError:
                 # Invalid passport, ignore
-                pass
+                continue
         return PassportList(passports)
-
-    def to_batch(self, filepath: Path) -> None:
-        pass
 
 
 if __name__ == "__main__":
     filepath = Path(__file__).parent / "input.txt"
     passports = PassportList.from_batch(filepath)
-    for passport in passports.passports:
-        print(passport.height)
     print(len(passports.passports))

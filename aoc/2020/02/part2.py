@@ -11,24 +11,6 @@ class PasswordPolicy(ABC):
 
 
 @dataclass
-class OriginalPasswordPolicy(PasswordPolicy):
-    min_count: int
-    max_count: int
-    character: str
-
-    def match(self, password: str) -> bool:
-        """
-        Check if the given password matches the policy.
-        A password matches if it contains between self.min_count and
-        self.match_count (inclusive) occurrences of self.character.
-        :param password: Password to test
-        :return: Whether or not the password is valid
-        """
-        count = password.count(self.character)
-        return self.min_count <= count <= self.max_count
-
-
-@dataclass
 class UpdatedPasswordPolicy(PasswordPolicy):
     # 1-indexed
     index_1: int
@@ -78,32 +60,13 @@ def count_valid_passwords(passwords: List[Password]) -> int:
     return len(valid_passwords)
 
 
-def load_input_old_format(filepath: Path) -> List[Password]:
-    def load_input(filepath: Path) -> List[Password]:
-        """
-        Load a filepath to a list of passwords including original-format
-        password policies.
-        :param filepath: File location
-        :return: List of passwords
-        """
-    passwords: List[Password] = []
-    for line in filepath.read_text().splitlines():
-        policy_str, password = line.split(": ")
-        min_count, policy_str = policy_str.split("-")
-        max_count, character = policy_str.split(" ")
-        policy = OriginalPasswordPolicy(int(min_count), int(max_count), character)
-        passwords.append(Password(policy, password))
-    return passwords
-
-
 def load_input_new_format(filepath: Path) -> List[Password]:
-    def load_input(filepath: Path) -> List[Password]:
-        """
-        Load a filepath to a list of passwords including updated-format
-        password policies.
-        :param filepath: File location
-        :return: List of passwords
-        """
+    """
+    Load a filepath to a list of passwords including updated-format
+    password policies.
+    :param filepath: File location
+    :return: List of passwords
+    """
     passwords: List[Password] = []
     for line in filepath.read_text().splitlines():
         policy_str, password = line.split(": ")

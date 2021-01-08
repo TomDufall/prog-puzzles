@@ -1,10 +1,10 @@
 from pathlib import Path
-from typing import List
+from typing import List, Set
 
 
 def merge_strings(group: List[str]) -> str:
     sets = (set(str_) for str_ in group)
-    result = set()
+    result: Set[str] = set()
     result.update(*sets)
     return "".join(result)
 

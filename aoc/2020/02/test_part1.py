@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import pytest
-import pytest_mock
+import pytest_mock  # noqa: F401
 
 from part1 import Password, PasswordPolicy
 from part1 import count_valid_passwords, load_input
@@ -45,6 +45,11 @@ def test_count_valid_passwords(mocker):
     assert count_valid_passwords(passwords) == 2
 
 
+def test_count_valid_passwords_sample_data():
+    passwords = load_input(Path("sample_input.txt"))
+    assert count_valid_passwords(passwords) == 3
+
+
 def test_load_input():
     filepath = Path(__file__).parent / "sample_input.txt"
     expected = [
@@ -57,7 +62,7 @@ def test_load_input():
             "aaabbbbaaab"
         ),
         Password(
-            PasswordPolicy(2, 7, "c"),
+            PasswordPolicy(2, 4, "c"),
             "accca"
         ),
         Password(

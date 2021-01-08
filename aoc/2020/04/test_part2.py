@@ -1,7 +1,6 @@
-from pathlib import Path
 import pytest
 
-from part2 import NorthPoleId, Passport, PassportList
+from part2 import Passport
 
 
 class TestPassport:

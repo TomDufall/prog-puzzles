@@ -2,6 +2,7 @@ from pathlib import Path
 
 from part1 import BagNetwork
 
+
 class TestBagNetwork:
     def test_from_file_must_contain(self):
         filepath = Path(__file__).parent / "sample_input_1.txt"

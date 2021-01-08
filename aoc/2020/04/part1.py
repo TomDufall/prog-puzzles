@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 import re
+from typing import List
 
 
 SHORT_TO_LONG = {
@@ -15,7 +16,7 @@ SHORT_TO_LONG = {
     "pid": "passport_id",
     "cid": "country_id",
 }
-LONG_TO_SHORT = {val: key for key,val in SHORT_TO_LONG.items()}
+LONG_TO_SHORT = {val: key for key, val in SHORT_TO_LONG.items()}
 
 
 @dataclass
@@ -37,15 +38,15 @@ class NorthPoleId(Passport):
 
 @dataclass
 class PassportList:
-    passports: Passport
+    passports: List[Passport]
 
     @staticmethod
     def from_batch(filepath: Path) -> PassportList:
         entries = filepath.read_text().split("\n\n")
         passports = []
-        field_pattern = r"[\S^:]+:[\S^:]+" # key:value
+        field_pattern = r"[\S^:]+:[\S^:]+"  # key:value
         for entry in entries:
-            field_strings = re.findall(field_pattern,entry)
+            field_strings = re.findall(field_pattern, entry)
             fields = {
                 SHORT_TO_LONG[key]: value
                 for key, value
@@ -61,9 +62,6 @@ class PassportList:
                     # Invalid passport, ignore
                     pass
         return PassportList(passports)
-
-    def to_batch(self, filepath: Path) -> None:
-        pass
 
 
 if __name__ == "__main__":

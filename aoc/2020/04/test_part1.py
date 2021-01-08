@@ -81,7 +81,7 @@ class TestPassportList:
             NorthPoleId(
                 birth_year="1931",
                 issue_year="2013",
-                expiration_year= "2024",
+                expiration_year="2024",
                 height="179cm",
                 hair_colour="#ae17e1",
                 eye_colour="brn",
