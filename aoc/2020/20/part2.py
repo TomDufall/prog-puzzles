@@ -3,10 +3,28 @@ from dataclasses import dataclass
 from itertools import product
 from math import sqrt
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 from toolz import concat, frequencies
 from toolz.dicttoolz import merge_with, valmap
+
+
+def flip(image: List[str], x: bool=False, y: bool=False) -> List[str]:
+    if x:
+        image = list(map(lambda x: x[::-1], image))
+    if y:
+        image = image[::-1]
+    return image
+
+
+def rotate(image: List[str], count: int) -> List[str]:
+    rotations = count % 4
+    for _ in range(rotations):
+        image = [
+            "".join([image[i][j] for i in range(len(image) - 1, -1, -1)])
+            for j in range(len(image))
+        ]
+    return image
 
 
 @dataclass
@@ -15,29 +33,21 @@ class Tile:
     data: List[str]
 
     @property
-    def edges(self) -> List[str]:
+    def edges(self) -> Tuple[str, str, str, str]:
         # all listed reading clockwise
         top = self.data[0]
         bot = self.data[-1][::-1]
-        left = "".join([row[0] for row in self.data])[::-1]
+        left = "".join([row[0] for row in self.data[::-1]])
         right = "".join([row[-1] for row in self.data])
-        return [top, right, bot, left]
+        return (top, right, bot, left)
 
-    def flip(self, x: bool=False, y: bool=False) -> None:
-        if x:
-            self.data = list(map(lambda x: x[::-1], self.data))
-        if y:
-            self.data.reverse()
+    def flip(self, x: bool = False, y: bool = False) -> None:
+        self.data = flip(self.data, x, y)
 
     def rotate(self, count: int) -> None:
-        rotations = count % 4
-        for _ in range(rotations):
-            self.data = [
-                "".join([self.data[i][j] for i in range(len(self.data) -1, -1, -1)])
-                for j in range(len(self.data))
-            ]
+        self.data = rotate(self.data, count)
 
-    def get_edge_location(self, edge_str: str) -> (int, int):
+    def get_edge_location(self, edge_str: str) -> Tuple[int, int]:
         edges = self.edges
         try:
             return edges.index(edge_str), 0
@@ -48,28 +58,34 @@ class Tile:
 
 @dataclass
 class TileStore:
-    tiles: Dict[Tile]
+    tiles: Dict[str, Tile]
 
     @staticmethod
     def from_file(filepath: Path) -> TileStore:
         return TileStore(
-            {title[5:]: Tile(title[5:], data.splitlines()) for title, data in 
+            {title[5:]: Tile(title[5:], data.splitlines()) for title, data in
             map(lambda x: x.split(":\n", 1), filepath.read_text().split("\n\n"))}
         )
 
-    def find_corners(self) -> List[int]:
-        edges_dict_list = [
+    @property
+    def edge_links(self) -> Dict[str, List[str]]:
+        edges_dicts = (
             {min(edge, edge[::-1]): tile.id for edge in tile.edges}
             for tile in self.tiles.values()
-        ]
-        edges = merge_with(lambda x: x, *edges_dict_list)
-        freqs = frequencies(concat(
-            (value for value in edges.values() if len(value) == 2))
         )
-        corners = [id for id, count in freqs.items() if count == 2]
+        return merge_with(lambda x: x, *edges_dicts)
+
+    @property
+    def corners(self) -> Tuple[str, str, str, str]:
+        pair_freqs = frequencies(
+            concat(
+                filter(lambda x: len(x) == 2, self.edge_links.values())
+            )
+        )
+        corners = [id_ for id_, count in pair_freqs.items() if count == 2]
         if len(corners) != 4:
             raise ValueError("Wrong number of corners!")
-        return corners
+        return tuple(corners)
 
     def build_image(self) -> List[str]:
         edges_dict_list = [
@@ -95,8 +111,6 @@ class TileStore:
                 existing_id = next(iter(ids.intersection(positioned_tiles.keys())))
                 existing_edge_index, _ = self.tiles[existing_id].get_edge_location(next_edge)
                 existing_edge = self.tiles[existing_id].edges[existing_edge_index]
-                #print(existing_edge)
-                #print(existing_edge_index)
                 new_edge_index, new_edge_flip = self.tiles[new_id].get_edge_location(next_edge)
                 #print(new_edge_index, new_edge_flip)
                 rotation = existing_edge_index - new_edge_index + 2
@@ -121,7 +135,6 @@ class TileStore:
                     raise ValueError("Index out of bounds")
                 positioned_tiles[new_id] = new_x, new_y
                 to_find.update(self.tiles[new_id].edges)
-                #print("--------------------")
         top_left_x = min((x for x, y in positioned_tiles.values()))
         top_left_y = max((y for x, y in positioned_tiles.values()))
         size = int(sqrt(len(positioned_tiles)))
@@ -141,43 +154,27 @@ class TileStore:
         return image
 
 
-# refactor out of earlier class
-def flip(image: List[str], x: bool=False, y: bool=False) -> List[str]:
-    if x:
-        image = list(map(lambda x: x[::-1], image))
-    if y:
-        image.reverse()
-    return image
-
-def rotate(image: List[str], count: int) -> List[str]:
-    rotations = count % 4
-    for _ in range(rotations):
-        image = [
-            "".join([image[i][j] for i in range(len(image) -1, -1, -1)])
-            for j in range(len(image))
-        ]
-    return image
-
-def detect_sea_monsters(image: List[str]) -> int:
-    SEA_MONSTER = [
-        "                  # ",
-        "#    ##    ##    ###",
-        " #  #  #  #  #  #   ",
-    ]
+def detect_sea_monsters(image: List[str], sea_monster: List[str]) -> int:
     count = 0
-    for base_y in range(len(image) - len(SEA_MONSTER)):
-        for base_x in range(len(image[0]) - len(SEA_MONSTER[0])):
+    for base_y in range(len(image) - len(sea_monster)):
+        for base_x in range(len(image[0]) - len(sea_monster[0])):
             fail = False
-            for rel_y, rel_x in product(range(len(SEA_MONSTER)), range(len(SEA_MONSTER[0]))):
-                if SEA_MONSTER[rel_y][rel_x] == "#" and not image[base_y + rel_y][base_x + rel_x] == "#":
+            for rel_y, rel_x in product(range(len(sea_monster)), range(len(sea_monster[0]))):
+                if sea_monster[rel_y][rel_x] == "#" and not image[base_y + rel_y][base_x + rel_x] == "#":
                     fail = True
                     break
             if not fail:
                 count += 1
-    return count          
+    return count
 
 
-def detect_max_sea_monsters(image: List[str]) -> int:
+def detect_max_sea_monsters(image: List[str], sea_monster: List[str]=None) -> int:
+    if not sea_monster:
+        sea_monster = [
+            "                  # ",
+            "#    ##    ##    ###",
+            " #  #  #  #  #  #   ",
+        ]
     image_variations = [
         image,
         flip(image, x=True),
@@ -188,7 +185,13 @@ def detect_max_sea_monsters(image: List[str]) -> int:
         rotate(image, 3),
         flip(rotate(image, 3), y=True),
     ]
-    return max(map(detect_sea_monsters, image_variations))
+    return max(
+        map(
+            lambda image: detect_sea_monsters(image, sea_monster),
+            image_variations
+        )
+    )
+
 
 def measure_roughness(image: List[str]) -> int:
     SEA_MONSTER = [
@@ -196,17 +199,18 @@ def measure_roughness(image: List[str]) -> int:
         "#    ##    ##    ###",
         " #  #  #  #  #  #   ",
     ]
-    sea_monster_count = detect_max_sea_monsters(image)
+    sea_monster_count = detect_max_sea_monsters(image, SEA_MONSTER)
     sea_monster_size = sum(map(lambda x: x.count("#"), SEA_MONSTER))
     roughness = sum(map(lambda x: x.count("#"), image)) - sea_monster_count * sea_monster_size
     return roughness
+
 
 if __name__ == "__main__":
     from datetime import datetime
     start = datetime.now()
     filepath = Path(__file__).parent / "input.txt"
     tiles = TileStore.from_file(filepath)
-    corners = tiles.find_corners()
+    corners = tiles.corners
     image = tiles.build_image()
     max_sea_monsters = detect_max_sea_monsters(image)
     roughness = measure_roughness(image)
@@ -214,7 +218,5 @@ if __name__ == "__main__":
     time = (end - start).total_seconds()
     print(time)
     print(corners)
-    # for row in image:
-    #     print(row)
     print(max_sea_monsters)
     print(roughness)
