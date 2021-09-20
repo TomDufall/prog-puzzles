@@ -1,0 +1,1 @@
+To run, change to directory 'main1' or 'main2', then run `go run main_<N>.go`
