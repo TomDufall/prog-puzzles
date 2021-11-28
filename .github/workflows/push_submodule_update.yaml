@@ -6,6 +6,13 @@ on:
     branches:
       - master
       - main
+    # Only update if changes match one of these paths
+    paths:
+      - "/aoc/2021/**"
+      - README.md
+      - README.txt
+      - LICENSE
+      - .gitignore
 permissions:
   contents: read
 jobs:
@@ -14,8 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          #repository: emilyhunt/advent-of-code-21
-          repository: TomDufall/submodule-test
+          repository: emilyhunt/advent-of-code-21
           submodules: recursive
           token: ${{ secrets.write_pat }}
       - run: |
