@@ -1,0 +1,25 @@
+# On commit to master, pull updates in a repo that uses this repo as a submodule
+name: push-submodule-update
+on:
+  # On push to master branch
+  push:
+    branches:
+      - master
+      - main
+permissions:
+  contents: read
+jobs:
+  build:
+    steps:
+      - uses: actions/checkout@v2
+      - with:
+          #repository: emilyhunt/advent-of-code-21
+          repository: TomDufall/submodule-test
+          submodules: recursive
+          token: ${{ secrets.write_pat }}
+      - run: |
+        git config user.name submodule-update-bot
+        git config user.email <>
+        git submodule update --remote
+        git commit -am "Update submodules"
+        git push
