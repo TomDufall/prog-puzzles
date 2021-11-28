@@ -18,8 +18,8 @@ jobs:
           submodules: recursive
           token: ${{ secrets.write_pat }}
       - run: |
-        git config user.name submodule-update-bot
-        git config user.email "<>"
-        git submodule update --remote
-        git commit -am "Update submodules"
-        git push
+          git config user.name submodule-update-bot
+          git config user.email "<>"
+          git submodule update --remote
+          git commit -am "Update submodules"
+          git push
