@@ -9,7 +9,7 @@ class Cups:
     cups: Deque[int]
 
     @property
-    def answer_str(self) -> None:
+    def answer_str(self) -> str:
         one_index = self.cups.index(1)
         cups_copy = self.cups.copy()
         cups_copy.rotate(-1 * one_index)
