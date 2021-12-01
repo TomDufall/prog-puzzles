@@ -8,7 +8,7 @@ on:
       - main
     # Only update if changes match one of these paths
     paths:
-      - "/aoc/2021/**"
+      - "aoc/2021/**"
       - README.md
       - README.txt
       - LICENSE
