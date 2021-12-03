@@ -1,4 +1,4 @@
-from typing import Callable, List
+from typing import Callable, Dict, List
 
 from part1 import load_input
 
@@ -15,7 +15,7 @@ def filter_numbers(numbers: List[str], calculate_criteria: Callable) -> str:
 
 
 def most_common(numbers: List[str]) -> str:
-    count = {}
+    count: Dict[str, int] = {}
     for number in numbers:
         count[number] = count.get(number, 0) + 1
     return "1" if count.get("1", 0) >= count.get("0", 0) else "0"
@@ -27,7 +27,7 @@ def calc_oxygen_rating(numbers: List[str]) -> str:
 
 def calculate_co2_rating(numbers: List[str]) -> str:
     def least_common(numbers: List[str]) -> str:
-        count = {}
+        count: Dict[str, int] = {}
         for number in numbers:
             count[number] = count.get(number, 0) + 1
         return "0" if count.get("0", 0) <= count.get("1", 0) else "1"
