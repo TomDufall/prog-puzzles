@@ -24,7 +24,7 @@ def print_coords(coords: set[tuple[int, int]]) -> None:
     rows = []
     for y in range(max_y + 1):
         x_values = {x2 for x2, y2 in coords if y2 == y}
-        row = "".join(["#" if i in x_values else "." for i in range(max_x + 1)])
+        row = "".join(["▮" if i in x_values else " " for i in range(max_x + 1)])
         rows.append(row)
     print("\n".join(rows))
 
