@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from itertools import chain
+from queue import PriorityQueue
 
 
 def _neighbours(x, y, max_x, max_y) -> list[tuple[int, int]]:
@@ -26,15 +27,15 @@ def find_shortest_path(grid: list[list[int]], iter_limit=10000) -> int:
     for x, y in _neighbours(*end, max_x, max_y):
         seen_end[x, y] = visited_end[end] + grid[y][x]
 
+    queue = PriorityQueue()
+    for coord, cost in chain(seen_start.items(), seen_end.items()):
+        queue.put((cost, coord))
     i = 0
     while True:
         i += 1
         if i > iter_limit:
             raise Exception("Ran for too long - quitting")
-        next_ = min(
-            chain(seen_start.items(), seen_end.items()),
-            key=lambda item: item[1],
-        )[0]
+        _, next_ = queue.get()
         if next_ in seen_start and next_ in visited_end:
             return seen_start[next_] + visited_end[next_] - grid[next_[1]][next_[0]]
         elif next_ in seen_end and next_ in visited_start:
@@ -48,6 +49,7 @@ def find_shortest_path(grid: list[list[int]], iter_limit=10000) -> int:
                 if (x, y) in seen_start and distance >= seen_start[(x, y)]:
                     continue
                 seen_start[(x, y)] = distance
+                queue.put((distance, (x, y)))
         elif next_ in seen_end:
             visited_end[next_] = seen_end.pop(next_)
             for x, y in _neighbours(*next_, max_x, max_y):
@@ -57,6 +59,7 @@ def find_shortest_path(grid: list[list[int]], iter_limit=10000) -> int:
                 if (x, y) in seen_end and distance >= seen_end[(x, y)]:
                     continue
                 seen_end[(x, y)] = distance
+                queue.put((distance, (x, y)))
 
 
 def load_input(filepath: str = "input.txt") -> list[list[str]]:
