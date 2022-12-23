@@ -22,7 +22,7 @@ def split_input(text: str) -> Generator[Union[int, str], None, None]:
             elif is_number:
                 temp += char
             else:
-                # Change from number to string
+                # Change from string to number
                 yield temp
                 temp = char
                 is_number = True
