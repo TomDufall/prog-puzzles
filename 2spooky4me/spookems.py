@@ -55,6 +55,8 @@ def change_spookiness(text: str, operation: str) -> str:
 
 
 if __name__ == "__main__":
+    # Note: if invoking with GitBash, specify a "/" arg as "//" to avoid
+    # filepath expansion. Nothing to do with Python.
     import sys
 
     print(change_spookiness(sys.argv[1], sys.argv[2]))
